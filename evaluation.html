@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 10px auto;
+        }
+        
+        #form {
+            width: max-content;
+            margin: auto;
+        }
+        
+        #div_second {
+            text-align: center;
+            padding: 0.5em;
+            margin: 1em auto;
+            border: 1px solid black;
+            width: 50%;
+        }
+        
+        label {
+            font-size: 1.5em;
+        }
+        
+        input[type="text"] {
+            padding: 0.3em;
+            margin: 0px 6px;
+        }
+        
+        input[type="submit"] {
+            border: 1px solid black;
+            font-size: 1.5em;
+            margin: 15px auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form action="" id="form">
+        <label for="" class="name">Task : </label>
+        <input type="text" id="task_input">
+        <p id="invalid" style="color:red;"></p>
+        <label for="" class="check">Done? : </label>
+        <input type="checkbox" name="" id="checkbox_input">
+        <br>
+        <input type="submit" value="submit">
+    </form>
+
+    <div class="container" id="container">
+
+    </div>
+
+</body>
+
+<script>
+    var form = document.getElementById("form").addEventListener("submit", do_something);
+
+    var container = document.getElementById('container');
+    var invalid = document.getElementById('invalid');
+
+    function do_something(event) {
+        event.preventDefault();
+        var task = document.getElementById("task_input").value;
+        if (task.length < 3) {
+            invalid.innerText = "Please enter a valid task"
+        } else {
+            var checkbox = document.getElementById("checkbox_input").checked;
+
+            // console.log(task, checkbox)
+            var url = "https://json-server-mocker-masai.herokuapp.com/tasks";
+
+            container.innerHTML = "";
+
+            var arr = [{
+                title: task,
+                status: checkbox
+            }]
+
+            console.log(arr);
+            //posting data
+
+            fetch(url, {
+
+                // Adding method type
+                method: "POST",
+
+                // Adding body or contents to send
+                body: JSON.stringify({
+                    title: task,
+                    status: checkbox,
+                    userId: 4
+                }),
+
+                // Adding headers to the request
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+
+            // Converting to JSON
+            .then(response => response.json())
+
+            // Displaying results to console
+            .then(json => apendData(arr[0]));
+
+
+            //fetching data
+
+            fetch(url)
+                .then(function(response) {
+                    // console.log("response: ", response);
+
+                    return response.json();
+                })
+                .then(function(response) {
+                    // console.log("response2: ", response)
+
+                    for (var i = 0; i < response.length; i++) {
+                        // console.log(response[i].title);
+                        if (response[i].userId == 4) {
+                            console.log("working")
+                            console.log(response[i]);
+                            apendData(response[i]);
+                        }
+                    }
+                }).catch(function(error) {
+                    console.log("error: ", error);
+                })
+        }
+
+
+
+    }
+
+    function apendData(data) {
+        var div = document.createElement("div");
+        div.setAttribute("id", "div_second");
+        div.style.border = "1px solid black";
+        var title = document.createElement("h3");
+        title.textContent = `${data.title}`;
+        if (!data.status) {
+            title.style.color = "red";
+        } else {
+            title.style.color = "green";
+        }
+        var status = document.createElement("h4");
+        status.textContent = data.status;
+
+        div.append(title, status);
+
+        var container = document.getElementById('container');
+        // container.innerText = "";
+        container.append(div);
+
+    }
+</script>
+
+</html>
